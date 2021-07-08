@@ -10,6 +10,7 @@ import { signatureImport } from 'secp256k1'
 import semver from 'semver'
 import { electron } from '../utils'
 import { isElectron } from '../utils/env'
+import transport from './transport'
 
 const INTERACTION_TIMEOUT = 120
 const REQUIRED_COSMOS_APP_VERSION = '2.12.0'
@@ -72,7 +73,6 @@ class TerraElectronBridge extends TerraApp {
 
 let app: TerraApp | TerraElectronBridge | null = null
 let path: number[] | null = null
-let transport: any = null
 
 const handleTransportError = (err: Error) => {
   if (err.message.startsWith('The device is already open')) {
@@ -191,37 +191,15 @@ async function createTerraApp(): Promise<TerraApp | TerraElectronBridge> {
     app = new TerraElectronBridge()
   } else {
     checkBrowser(navigator.userAgent)
-
-    if (isWindows(navigator.platform)) {
-      // For Windows
-      if (!navigator.hid) {
-        throw new LedgerError(
-          `Your browser doesn't have HID enabled.\nPlease enable this feature by visiting:\nchrome://flags/#enable-experimental-web-platform-features`
-        )
-      }
-
-      const TransportWebHid = require('@ledgerhq/hw-transport-webhid').default
-      transport = await TransportWebHid.create(
-        INTERACTION_TIMEOUT * 1000
-      ).catch(handleTransportError)
-    } else {
-      // For other than Windows
-      const TransportWebUsb = require('@ledgerhq/hw-transport-webusb').default
-      transport = await TransportWebUsb.create(
-        INTERACTION_TIMEOUT * 1000
-      ).catch(handleTransportError)
-    }
-
-    if (transport && typeof transport.on === 'function') {
-      transport.on('disconnect', () => {
-        app = path = transport = null
-      })
-    }
-
+    console.log('coucou')
     app = new TerraApp(transport)
   }
 
+  console.log('yeah ?')
+
   const result = await app.initialize()
+
+  console.log('ixi')
   checkLedgerErrors(result)
 
   return app
@@ -232,8 +210,18 @@ const connect = async () => {
     return
   }
 
-  app = await createTerraApp()
+  console.log('ixi')
+
+  try {
+    app = await createTerraApp()
+  } catch (e) {
+    console.log('ici err', e)
+    throw e
+  }
+  console.log('laa')
   const { app_name: appName } = app.getInfo()
+
+  console.log(appName)
 
   if (!['Terra', 'Cosmos'].includes(appName)) {
     throw new LedgerError(`Open the Terra app in your Ledger.`)
