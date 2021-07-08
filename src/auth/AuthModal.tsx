@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { AuthMenuKey, useAuthMenu } from '../use-station/src'
 import { isElectron } from '../utils/env'
 import { loadKeys } from '../utils/localStorage'
@@ -28,6 +28,12 @@ const AuthModal = () => {
     goBack: currentKey && (() => setCurrentKey(undefined)),
   }
 
+  useEffect(() => {
+    setTimeout(() => {
+      setCurrentKey('signInWithLedger')
+    }, 500)
+  }, [])
+
   const footer = !isElectron && <AuthFooter {...ui.web} />
 
   return (
@@ -47,7 +53,6 @@ const AuthModal = () => {
                 item
               )
             })}
-            footer={footer}
           />
         ) : (
           menu[currentKey].render()

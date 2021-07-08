@@ -17,5 +17,5 @@ export default (): AuthMenuKey[] => {
     return ['signInWithLedger', 'signIn', 'signUp', 'recover', 'importKey']
   }
 
-  return ['signInWithLedger', 'download']
+  return ['signInWithLedger']
 }

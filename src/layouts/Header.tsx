@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import c from 'classnames'
 import { useAuth, useText, useConfig } from '../use-station/src'
@@ -17,6 +17,13 @@ const Header = ({ className }: { className: string }) => {
   const { goBack, refresh, authModal, modal } = useApp()
   const { chain } = useConfig()
   const isLocalTerra = chain.current.localterra
+
+  useEffect(() => {
+    if (user) {
+      return
+    }
+    authModal.open()
+  }, [])
 
   const share = () =>
     modal.open(
